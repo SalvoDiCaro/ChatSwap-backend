@@ -11,7 +11,6 @@ import { LastMessage, Message } from "../models/message";
 import { messages } from "../resources/messages";
 import { users } from "../resources/users";
 
-
 export const chatsController = {
   getChats:  (
     req: Request,res: Response) => { 
@@ -20,17 +19,17 @@ export const chatsController = {
 
   getChatsByUser:  ({params: {id}}: Request<{id: string}>,res: Response<Chat[] | {error: string}>) => { 
     const user = users.find(({id: idUser}) => idUser === id);
-    if(!user) return res.status(404).json({error: 'user not found!'});
+    if(!user) return res.status(404).json({error: 'User not found.'});
     const chatsFiltered = chats.filter(({user1, user2}) => (user1.id === user.id || user2.id === user.id));
-     res.json(chatsFiltered);
+    res.json(chatsFiltered);
   },
 
   getChat: ({params: {id}}: Request,res: Response<CompleteChat | {error: string}>) => { 
       const chat = chats.find(({id: idChat}) => id === idChat);
-      if(!chat) return res.status(404).json({error: 'Chat not found!'}); 
+      if(!chat) return res.status(404).json({error: 'Chat not found.'}); 
       let partialChat =  {...chat};
       const arrayMessages: Message[] = messages.filter(({chatId}) => chatId === id  ).sort((a,b) => {
-        return a.dateTime > b.dateTime ? -1 : 1 ;
+        return a.dateTime.getTime() - b.dateTime.getTime();  
       });
         res.json({...partialChat, messages: arrayMessages});
   },
@@ -39,16 +38,15 @@ export const chatsController = {
     { body }: Request<{},{},{user1: {id: string, nickname: string}, user2: {id: string, nickname: string}}>,res: Response) => {
       if(!body.user1 || !body.user2 ) return res.status(404).json({error: 'user is invalid!!'})
       const {user1, user2} = body;
-      if(!user1 || !user1.nickname || !user1.id) return res.status(404).json({error: 'user1 is invalid!!'})
-      if(!user2 || !user2.nickname || !user2.id) return res.status(404).json({error: 'user2 is invalid!!'})
+      if(!user1 || !user1.nickname || !user1.id) return res.status(404).json({error: 'user1 is invalid.'})
+      if(!user2 || !user2.nickname || !user2.id) return res.status(404).json({error: 'user2 is invalid.'})
 
       const u_1 = { id: user1.id, nickname: user1.nickname};
       const u_2 = { id: user2.id, nickname: user2.nickname};
       const data = { id: uuidv4(),user1:{...u_1}, user2:{...u_2}};
       pushChat(data);
-        res.json(data);
+      res.json(data);
   },
-
 
   deleteChat:  (
     {params: {id}}: Request,res: Response) => { 

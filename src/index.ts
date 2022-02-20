@@ -26,7 +26,5 @@ app.use("/chats", chats);
 
 app.listen(port ,() => console.log("Server is running"));
 
-
-
-   export default app;
+export default app;
 
