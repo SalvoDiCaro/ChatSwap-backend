@@ -7,6 +7,8 @@ import cors from "cors";
 import messages from "./routes/messages";
 import chats from "./routes/chats";
 
+const port = process.env.PORT || 3001;
+
 
 const app = express();
 
@@ -22,7 +24,7 @@ app.use("/auth", auth);
 app.use("/messages", messages);
 app.use("/chats", chats);
 
-app.listen(3001 ,() => console.log("Server is running"));
+app.listen(port ,() => console.log("Server is running"));
 
 
 
