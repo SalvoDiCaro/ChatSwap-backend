@@ -38,11 +38,16 @@ export const chatsController = {
     { body }: Request<{},{},{user1: {id: string, nickname: string}, user2: {id: string, nickname: string}}>,res: Response) => {
       if(!body.user1 || !body.user2 ) return res.status(404).json({error: 'user is invalid!!'})
       const {user1, user2} = body;
-      if(!user1 || !user1.nickname || !user1.id) return res.status(404).json({error: 'user1 is invalid.'})
-      if(!user2 || !user2.nickname || !user2.id) return res.status(404).json({error: 'user2 is invalid.'})
+      if(!user1 || !user1.nickname || !user1.id) return res.status(400).json({error: 'user1 is invalid.'})
+      if(!user2 || !user2.nickname || !user2.id) return res.status(400).json({error: 'user2 is invalid.'})
 
       const u_1 = { id: user1.id, nickname: user1.nickname};
       const u_2 = { id: user2.id, nickname: user2.nickname};
+
+      if(chats.some(({user1, user2}) => 
+      (user1.id === u_1.id && u_2.id === u_2.id) ||
+      (user2.id === u_1.id && u_1.id === u_2.id))) return res.status(409).json({error: 'chat already exists.'})
+      
       const data = { id: uuidv4(),user1:{...u_1}, user2:{...u_2}};
       pushChat(data);
       res.json(data);
