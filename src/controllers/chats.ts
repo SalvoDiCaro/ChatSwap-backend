@@ -36,7 +36,6 @@ export const chatsController = {
     }catch(err){
       res.json({error: err});
     }
-      
   },
 
   addChat: (
@@ -49,9 +48,9 @@ export const chatsController = {
       const u_1 = { id: user1.id, nickname: user1.nickname};
       const u_2 = { id: user2.id, nickname: user2.nickname};
 
-      if(chats.some(({user1, user2}) => 
-        (user1.id === u_1.id && u_2.id === u_2.id) ||
-        (user2.id === u_1.id && u_1.id === u_2.id))) 
+      if(chats.some(({user1: u1, user2: u2}) => 
+        (u1.id === u_1.id && u2.id === u_2.id) ||
+        (u2.id === u_1.id && u1.id === u_2.id))) 
       return res.status(409).json({error: 'chat already exists.'})
 
       const data = { id: uuidv4(),user1:{...u_1}, user2:{...u_2}};
