@@ -26,9 +26,10 @@ export const chatsController = {
 
   getChat: ({params: {id}}: Request,res: Response<CompleteChat | {error: string | unknown}>) => { 
     try{
-      const chat = chats.find(({id: idChat}) => id === idChat);
+      let chat = chats.find(({id: idChat}) => id === idChat);
       if(!chat) return res.status(404).json({error: 'Chat not found.'}); 
-      let partialChat =  {...chat};
+      delete chat.lastMessage;
+      let partialChat = {...chat};
       const arrayMessages: Message[] = messages.filter(({chatId}) => chatId === id  ).sort((a,b) => {
         return a.dateTime.getTime() - b.dateTime.getTime();  
       });
