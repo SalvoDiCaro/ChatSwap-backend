@@ -17,14 +17,15 @@ export const chatsController = {
         res.json(chats);
   },
 
-  getChatsByUser:  ({params: {id}}: Request<{id: string}>,res: Response<Chat[] | {error: string}>) => { 
+  getChatsByUser: ({params: {id}}: Request<{id: string}>,res: Response<Chat[] | {error: string}>) => { 
     const user = users.find(({id: idUser}) => idUser === id);
     if(!user) return res.status(404).json({error: 'User not found.'});
     const chatsFiltered = chats.filter(({user1, user2}) => (user1.id === user.id || user2.id === user.id));
     res.json(chatsFiltered);
   },
 
-  getChat: ({params: {id}}: Request,res: Response<CompleteChat | {error: string}>) => { 
+  getChat: ({params: {id}}: Request,res: Response<CompleteChat | {error: string | unknown}>) => { 
+    try{
       const chat = chats.find(({id: idChat}) => id === idChat);
       if(!chat) return res.status(404).json({error: 'Chat not found.'}); 
       let partialChat =  {...chat};
@@ -32,6 +33,10 @@ export const chatsController = {
         return a.dateTime.getTime() - b.dateTime.getTime();  
       });
         res.json({...partialChat, messages: arrayMessages});
+    }catch(err){
+      res.json({error: err});
+    }
+      
   },
 
   addChat: (
@@ -45,9 +50,10 @@ export const chatsController = {
       const u_2 = { id: user2.id, nickname: user2.nickname};
 
       if(chats.some(({user1, user2}) => 
-      (user1.id === u_1.id && u_2.id === u_2.id) ||
-      (user2.id === u_1.id && u_1.id === u_2.id))) return res.status(409).json({error: 'chat already exists.'})
-      
+        (user1.id === u_1.id && u_2.id === u_2.id) ||
+        (user2.id === u_1.id && u_1.id === u_2.id))) 
+      return res.status(409).json({error: 'chat already exists.'})
+
       const data = { id: uuidv4(),user1:{...u_1}, user2:{...u_2}};
       pushChat(data);
       res.json(data);
